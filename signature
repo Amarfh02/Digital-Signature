@@ -1,0 +1,48 @@
+import hashlib
+import rsa
+
+def generate_keys():
+  """Generates a public and private key pair."""
+  (public_key, private_key) = rsa.generate_public_key(2048)
+  return public_key, private_key
+
+def sign_message(message, private_key):
+  """Signs a message using the private key."""
+  message_hash = hashlib.sha256(message.encode('utf-8')).digest()
+  signature = rsa.sign(message_hash, private_key, 'SHA-256')
+  return signature
+
+def verify_signature(message, signature, public_key):
+  """Verifies a signature using the public key."""
+  message_hash = hashlib.sha256(message.encode('utf-8')).digest()
+  try:
+    rsa.verify(signature, message_hash, public_key, 'SHA-256')
+    return True
+  except rsa.VerificationError:
+    return False
+
+def main():
+  """Main function of the application."""
+  # Generate public and private key pair
+  public_key, private_key = generate_keys()
+
+  # Get a message from the user
+  message = input("Enter a message to sign: ")
+
+  # Sign the message using the private key
+  signature = sign_message(message, private_key)
+
+  # Display the signature
+  print("Signature:", signature)
+
+  # Verify the signature using the public key
+  verified = verify_signature(message, signature, public_key)
+
+  # Display the verification result
+  if verified:
+    print("Signature is valid")
+  else:
+    print("Signature is invalid")
+
+if __name__ == "__main__":
+  main()
